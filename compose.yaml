@@ -1,0 +1,51 @@
+# Services running on my personal server
+services:
+
+# Marimo (Python notebooks)
+# What is marimo? - https://marimo.io/
+# Docker image: https://docs.marimo.io/guides/deploying/deploying_docker.html
+  marimo:
+    container_name: marimo
+    build:
+      context: marimo
+    volumes:
+      - /home/marimo_notebooks:/app
+    ports:
+      - 2718:2718
+    restart: unless-stopped
+
+# Calibre Web (Ebook manager)
+# What is Calibre? - https://calibre-ebook.com/
+# Docker image: https://hub.docker.com/r/linuxserver/calibre-web
+  library:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: library
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DOCKER_MODS=linuxserver/mods:universal-calibre
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+    volumes:
+      - /home/library:/books
+      # - /path/to/data:/config
+    ports:
+      - 8083:8083
+    restart: unless-stopped
+
+# - Silverbullet (Markdown notes)
+# What is Silverbullet? - https://github.com/silverbulletmd/silverbullet
+# Docker image: https://hub.docker.com/r/zefhemel/silverbullet
+  notes:
+    image: zefhemel/silverbullet
+    container_name: notes
+    volumes:
+      - /home/notes:/space
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    user: "${USER}"
+    environment:
+      - SB_PASSWORD=${PASSWORD}
+    restart: unless-stopped
